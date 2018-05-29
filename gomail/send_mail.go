@@ -1,6 +1,7 @@
 package gomail
 
 import (
+	"errors"
 	"bytes"
 	"fmt"
 	"mime/quotedprintable"
@@ -35,8 +36,12 @@ type Sender struct {
 }
 
 // NewSender create Sender
-func NewSender(Username, Password, SMTPServer, SMTPPort string) Sender {
-	return Sender{Username, Password, SMTPServer, SMTPPort}
+func NewSender(Username, Password, SMTPServer, SMTPPort string) (sender Sender, err error) {
+	if SMTPServer == "" || SMTPPort == "" || Password == "" || Username == "" {
+		err = errors.New("gomail: have empty field")
+	}
+	sender = Sender{Username, Password, SMTPServer, SMTPPort}
+	return
 }
 
 // SendMail send mail to client

@@ -3,12 +3,15 @@ package main
 import (
 	"fmt"
 
-	"github.com/darkfoxs96/go_smtp/gomail"
+	"github.com/darkfoxs96/gosmtp/gomail"
 )
 
 func main() {
 
-	sender := gomail.NewSender("<YOUR EMAIL ADDRESS>", "<YOUR EMAIL PASSWORD>", gomail.SMTP["yandex.com"].Host, gomail.SMTP["yandex.com"].Port)
+	sender, err := gomail.NewSender("<YOUR EMAIL ADDRESS>", "<YOUR EMAIL PASSWORD>", gomail.SMTP["yandex.com"].Host, gomail.SMTP["yandex.com"].Port)
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
 
 	//The receiver needs to be in slice as the receive supports multiple receiver
 	Receiver := []string{"abc@yandex.com", "xyz@gmail.com", "larrypage@googlemail.com"}
@@ -31,7 +34,7 @@ func main() {
 	`
 	bodyMessage := sender.WriteHTMLEmail(Receiver, Subject, message)
 
-	err := sender.SendMail(Receiver, Subject, bodyMessage)
+	err = sender.SendMail(Receiver, Subject, bodyMessage)
 	if err != nil {
 		fmt.Println("Error: ", err)
 	}
