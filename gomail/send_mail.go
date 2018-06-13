@@ -1,8 +1,8 @@
 package gomail
 
 import (
-	"errors"
 	"bytes"
+	"errors"
 	"fmt"
 	"mime/quotedprintable"
 	"net/smtp"
@@ -22,25 +22,24 @@ type SMTPServer struct {
 
 // SMTP Servers
 var SMTP = map[string]*SMTPServer{
-	"mail.ru":    &SMTPServer{Host: "smtp.mail.ru", Port: "465"},
-	"yandex.com": &SMTPServer{Host: "smtp.yandex.com", Port: "465"},
-	"gmail.com":  &SMTPServer{Host: "smtp.gmail.com", Port: "465"},
+	"mail.ru":   &SMTPServer{Host: "smtp.mail.ru", Port: "465"},
+	"yandex.ru": &SMTPServer{Host: "smtp.yandex.ru", Port: "465"},
+	"gmail.com": &SMTPServer{Host: "smtp.gmail.com", Port: "465"},
 }
 
 // Sender client request
 type Sender struct {
-	User       string
-	Password   string
-	SMTPServer string
-	SMTPPort   string
+	User     string
+	Password string
+	SMTPServer
 }
 
 // NewSender create Sender
-func NewSender(Username, Password, SMTPServer, SMTPPort string) (sender Sender, err error) {
-	if SMTPServer == "" || SMTPPort == "" || Password == "" || Username == "" {
+func NewSender(Username, Password, SMTPHost, SMTPPort string) (sender Sender, err error) {
+	if SMTPHost == "" || SMTPPort == "" || Password == "" || Username == "" {
 		err = errors.New("gomail: have empty field")
 	}
-	sender = Sender{Username, Password, SMTPServer, SMTPPort}
+	sender = Sender{Username, Password, SMTPServer{SMTPHost, SMTPPort}}
 	return
 }
 
@@ -50,8 +49,8 @@ func (sender Sender) SendMail(Dest []string, Subject, bodyMessage string) (err e
 		"To: " + strings.Join(Dest, ",") + "\n" +
 		"Subject: " + Subject + "\n" + bodyMessage
 
-	err = smtp.SendMail(sender.SMTPServer+":"+sender.SMTPPort,
-		smtp.PlainAuth("", sender.User, sender.Password, sender.SMTPServer),
+	err = smtp.SendMail(sender.SMTPServer.Host+":"+sender.SMTPServer.Port,
+		smtp.PlainAuth("", sender.User, sender.Password, sender.SMTPServer.Host),
 		sender.User, Dest, []byte(msg))
 
 	if err != nil {
